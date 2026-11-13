@@ -1,46 +1,34 @@
-# Extramodelle
+# Extramodelle { #extra-models }
 
-Fahren wir beim letzten Beispiel fort. Es gibt normalerweise mehrere zusammengehörende Modelle.
+Im Anschluss an das vorherige Beispiel ist es üblich, mehr als ein zusammenhängendes Modell zu haben.
 
-Insbesondere Benutzermodelle, denn:
+Dies gilt insbesondere für Benutzermodelle, denn:
 
-* Das **hereinkommende Modell** sollte ein Passwort haben können.
-* Das **herausgehende Modell** sollte kein Passwort haben.
-* Das **Datenbankmodell** sollte wahrscheinlich ein <abbr title='Ein aus scheinbar zufälligen Zeichen bestehender „Fingerabdruck“ eines Textes. Der Inhalt des Textes kann nicht eingesehen werden.'>gehashtes</abbr> Passwort haben.
+* Das **Eingabemodell** muss ein Passwort enthalten können.
+* Das **Ausgabemodell** sollte kein Passwort haben.
+* Das **Datenbankmodell** müsste wahrscheinlich ein gehashtes Passwort haben.
 
-!!! danger "Gefahr"
-    Speichern Sie niemals das Klartext-Passwort eines Benutzers. Speichern Sie immer den „sicheren Hash“, den Sie verifizieren können.
+/// danger | Gefahr
 
-    Falls Ihnen das nichts sagt, in den [Sicherheits-Kapiteln](security/simple-oauth2.md#passwort-hashing){.internal-link target=_blank} werden Sie lernen, was ein „Passwort-Hash“ ist.
+Speichern Sie niemals das Klartextpasswort eines Benutzers. Speichern Sie immer einen „sicheren Hash“, den Sie dann verifizieren können.
 
-## Mehrere Modelle
+Wenn Sie nicht wissen, was das ist, werden Sie in den [Sicherheitskapiteln](security/simple-oauth2.md#password-hashing) lernen, was ein „Passworthash“ ist.
 
-Hier der generelle Weg, wie die Modelle mit ihren Passwort-Feldern aussehen könnten, und an welchen Orten sie verwendet werden würden.
+///
 
-=== "Python 3.10+"
+## Mehrere Modelle { #multiple-models }
 
-    ```Python hl_lines="7  9  14  20  22  27-28  31-33  38-39"
-    {!> ../../../docs_src/extra_models/tutorial001_py310.py!}
-    ```
+Hier ist eine allgemeine Idee, wie die Modelle mit ihren Passwortfeldern aussehen könnten und an welchen Stellen sie verwendet werden:
 
-=== "Python 3.8+"
+{* ../../docs_src/extra_models/tutorial001.py hl[7,9,14,20,22,27:28,31:33,38:39] *}
 
-    ```Python hl_lines="9  11  16  22  24  29-30  33-35  40-41"
-    {!> ../../../docs_src/extra_models/tutorial001.py!}
-    ```
+### Über `**user_in.model_dump()` { #about-user-in-model-dump }
 
-!!! info
-    In Pydantic v1 hieß diese Methode `.dict()`, in Pydantic v2 wurde sie deprecated (aber immer noch unterstützt) und in `.model_dump()` umbenannt.
-
-    Die Beispiele hier verwenden `.dict()` für die Kompatibilität mit Pydantic v1, Sie sollten jedoch stattdessen `.model_dump()` verwenden, wenn Sie Pydantic v2 verwenden können.
-
-### Über `**user_in.dict()`
-
-#### Pydantic's `.dict()`
+#### Pydantics `.model_dump()` { #pydantics-model-dump }
 
 `user_in` ist ein Pydantic-Modell der Klasse `UserIn`.
 
-Pydantic-Modelle haben eine `.dict()`-Methode, die ein `dict` mit den Daten des Modells zurückgibt.
+Pydantic-Modelle haben eine `.model_dump()`-Methode, die ein <abbr title="Dictionary – Zuordnungstabelle: In anderen Sprachen auch Hash, Map, Objekt, Assoziatives Array genannt">`dict`</abbr> mit den Daten des Modells zurückgibt.
 
 Wenn wir also ein Pydantic-Objekt `user_in` erstellen, etwa so:
 
@@ -48,42 +36,42 @@ Wenn wir also ein Pydantic-Objekt `user_in` erstellen, etwa so:
 user_in = UserIn(username="john", password="secret", email="john.doe@example.com")
 ```
 
-und wir rufen seine `.dict()`-Methode auf:
+und dann aufrufen:
 
 ```Python
-user_dict = user_in.dict()
+user_dict = user_in.model_dump()
 ```
 
-dann haben wir jetzt in der Variable `user_dict` ein `dict` mit den gleichen Daten (es ist ein `dict` statt eines Pydantic-Modellobjekts).
+haben wir jetzt ein `dict` mit den Daten in der Variablen `user_dict` (es ist ein `dict` statt eines Pydantic-Modellobjekts).
 
-Wenn wir es ausgeben:
+Und wenn wir aufrufen:
 
 ```Python
 print(user_dict)
 ```
 
-bekommen wir ein Python-`dict`:
+würden wir ein Python-`dict` erhalten mit:
 
 ```Python
 {
-    'username': 'john',
-    'password': 'secret',
-    'email': 'john.doe@example.com',
-    'full_name': None,
+    "username": "john",
+    "password": "secret",
+    "email": "john.doe@example.com",
+    "full_name": None,
 }
 ```
 
-#### Ein `dict` entpacken
+#### Ein `dict` entpacken { #unpacking-a-dict }
 
-Wenn wir ein `dict` wie `user_dict` nehmen, und es einer Funktion (oder Klassenmethode) mittels `**user_dict` übergeben, wird Python es „entpacken“. Es wird die Schlüssel und Werte von `user_dict` direkt als Schlüsselwort-Argumente übergeben.
+Wenn wir ein `dict` wie `user_dict` nehmen und es einer Funktion (oder Klasse) mit `**user_dict` übergeben, wird Python es „entpacken“. Es wird die Schlüssel und Werte von `user_dict` direkt als Schlüssel-Wert-Argumente übergeben.
 
-Wenn wir also das `user_dict` von oben nehmen und schreiben:
+Setzen wir also das `user_dict` von oben ein:
 
 ```Python
 UserInDB(**user_dict)
 ```
 
-dann ist das ungefähr äquivalent zu:
+so ist das äquivalent zu:
 
 ```Python
 UserInDB(
@@ -94,164 +82,130 @@ UserInDB(
 )
 ```
 
-Oder, präziser, `user_dict` wird direkt verwendet, welche Werte es auch immer haben mag:
+Oder genauer gesagt, dazu, `user_dict` direkt zu verwenden, mit welchen Inhalten es auch immer in der Zukunft haben mag:
 
 ```Python
 UserInDB(
-    username = user_dict["username"],
-    password = user_dict["password"],
-    email = user_dict["email"],
-    full_name = user_dict["full_name"],
+    username=user_dict["username"],
+    password=user_dict["password"],
+    email=user_dict["email"],
+    full_name=user_dict["full_name"],
 )
 ```
 
-#### Ein Pydantic-Modell aus den Inhalten eines anderen erstellen.
+#### Ein Pydantic-Modell aus dem Inhalt eines anderen { #a-pydantic-model-from-the-contents-of-another }
 
-Da wir in obigem Beispiel `user_dict` mittels `user_in.dict()` erzeugt haben, ist dieser Code:
+Da wir im obigen Beispiel `user_dict` von `user_in.model_dump()` bekommen haben, wäre dieser Code:
 
 ```Python
-user_dict = user_in.dict()
+user_dict = user_in.model_dump()
 UserInDB(**user_dict)
 ```
 
-äquivalent zu:
+gleichwertig zu:
 
 ```Python
-UserInDB(**user_in.dict())
+UserInDB(**user_in.model_dump())
 ```
 
-... weil `user_in.dict()` ein `dict` ist, und dann lassen wir Python es „entpacken“, indem wir es `UserInDB` übergeben, mit vorangestelltem `**`.
+... weil `user_in.model_dump()` ein `dict` ist, und dann lassen wir Python es „entpacken“, indem wir es an `UserInDB` mit vorangestelltem `**` übergeben.
 
-Wir erhalten also ein Pydantic-Modell aus den Daten eines anderen Pydantic-Modells.
+Auf diese Weise erhalten wir ein Pydantic-Modell aus den Daten eines anderen Pydantic-Modells.
 
-#### Ein `dict` entpacken und zusätzliche Schlüsselwort-Argumente
+#### Ein `dict` entpacken und zusätzliche Schlüsselwort-Argumente { #unpacking-a-dict-and-extra-keywords }
 
-Und dann fügen wir ein noch weiteres Schlüsselwort-Argument hinzu, `hashed_password=hashed_password`:
+Und dann fügen wir das zusätzliche Schlüsselwort-Argument `hashed_password=hashed_password` hinzu, wie in:
 
 ```Python
-UserInDB(**user_in.dict(), hashed_password=hashed_password)
+UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
 ```
 
-... was am Ende ergibt:
+... was so ist wie:
 
 ```Python
 UserInDB(
-    username = user_dict["username"],
-    password = user_dict["password"],
-    email = user_dict["email"],
-    full_name = user_dict["full_name"],
-    hashed_password = hashed_password,
+    username=user_dict["username"],
+    password=user_dict["password"],
+    email=user_dict["email"],
+    full_name=user_dict["full_name"],
+    hashed_password=hashed_password,
 )
 ```
 
-!!! warning "Achtung"
-    Die Hilfsfunktionen `fake_password_hasher` und `fake_save_user` demonstrieren nur den möglichen Fluss der Daten und bieten natürlich keine echte Sicherheit.
+/// warning | Achtung
 
-## Verdopplung vermeiden
+Die unterstützenden zusätzlichen Funktionen `fake_password_hasher` und `fake_save_user` dienen nur zur Demo eines möglichen Datenflusses, bieten jedoch natürlich keine echte Sicherheit.
 
-Reduzierung von Code-Verdoppelung ist eine der Kern-Ideen von **FastAPI**.
+///
 
-Weil Verdoppelung von Code die Wahrscheinlichkeit von Fehlern, Sicherheitsproblemen, Desynchronisation (Code wird nur an einer Stelle verändert, aber nicht an einer anderen), usw. erhöht.
+## Verdopplung vermeiden { #reduce-duplication }
 
-Unsere Modelle teilen alle eine Menge der Daten und verdoppeln Attribut-Namen und -Typen.
+Die Reduzierung von Code-Verdoppelung ist eine der Kernideen von **FastAPI**.
 
-Das können wir besser machen.
+Da die Verdopplung von Code die Wahrscheinlichkeit von Fehlern, Sicherheitsproblemen, Problemen mit der Desynchronisation des Codes (wenn Sie an einer Stelle, aber nicht an der anderen aktualisieren) usw. erhöht.
 
-Wir deklarieren ein `UserBase`-Modell, das als Basis für unsere anderen Modelle dient. Dann können wir Unterklassen erstellen, die seine Attribute (Typdeklarationen, Validierungen, usw.) erben.
+Und diese Modelle teilen alle eine Menge der Daten und verdoppeln Attributnamen und -typen.
 
-Die ganze Datenkonvertierung, -validierung, -dokumentation, usw. wird immer noch wie gehabt funktionieren.
+Wir könnten es besser machen.
 
-Auf diese Weise beschreiben wir nur noch die Unterschiede zwischen den Modellen (mit Klartext-`password`, mit `hashed_password`, und ohne Passwort):
+Wir können ein `UserBase`-Modell deklarieren, das als Basis für unsere anderen Modelle dient. Und dann können wir Unterklassen dieses Modells erstellen, die seine Attribute (Typdeklarationen, Validierung usw.) erben.
 
-=== "Python 3.10+"
+Die ganze Datenkonvertierung, -validierung, -dokumentation usw. wird immer noch wie gewohnt funktionieren.
 
-    ```Python hl_lines="7  13-14  17-18  21-22"
-    {!> ../../../docs_src/extra_models/tutorial002_py310.py!}
-    ```
+Auf diese Weise können wir nur die Unterschiede zwischen den Modellen (mit Klartext-`password`, mit `hashed_password` und ohne Passwort) deklarieren:
 
-=== "Python 3.8+"
+{* ../../docs_src/extra_models/tutorial002.py hl[7,13:14,17:18,21:22] *}
 
-    ```Python hl_lines="9  15-16  19-20  23-24"
-    {!> ../../../docs_src/extra_models/tutorial002.py!}
-    ```
+## `Union` oder `anyOf` { #union-or-anyof }
 
-## `Union`, oder `anyOf`
+Sie können deklarieren, dass eine <abbr title="Response – Antwort: Daten, die der Server zum anfragenden Client zurücksendet">Response</abbr> eine <abbr title="Union – Verbund, Einheit, Vereinigung: Eines von Mehreren">`Union`</abbr> von zwei oder mehr Typen ist, das bedeutet, dass die Response einer von ihnen ist.
 
-Sie können deklarieren, dass eine Response eine <abbr title="Union – Verbund, Einheit‚ Vereinigung: Eines von Mehreren">`Union`</abbr> mehrerer Typen ist, sprich, einer dieser Typen.
+Dies wird in OpenAPI mit `anyOf` definiert.
 
-Das wird in OpenAPI mit `anyOf` angezeigt.
+Um das zu tun, verwenden Sie den Standard-Python-Typhinweis [`typing.Union`](https://docs.python.org/3/library/typing.html#typing.Union):
 
-Um das zu tun, verwenden Sie Pythons Standard-Typhinweis <a href="https://docs.python.org/3/library/typing.html#typing.Union" class="external-link" target="_blank">`typing.Union`</a>:
+/// note | Hinweis
 
-!!! note "Hinweis"
-    Listen Sie, wenn Sie eine <a href="https://pydantic-docs.helpmanual.io/usage/types/#unions" class="external-link" target="_blank">`Union`</a> definieren, denjenigen Typ zuerst, der am spezifischsten ist, gefolgt von den weniger spezifischen Typen. Im Beispiel oben, in `Union[PlaneItem, CarItem]` also den spezifischeren `PlaneItem` vor dem weniger spezifischen `CarItem`.
+Wenn Sie eine [`Union`](https://pydantic.dev/docs/validation/latest/concepts/unions/) definieren, listen Sie den spezifischsten Typ zuerst auf, gefolgt vom weniger spezifischen Typ. Im folgenden Beispiel kommt der spezifischere `PlaneItem` vor `CarItem` in `Union[PlaneItem, CarItem]`.
 
-=== "Python 3.10+"
+///
 
-    ```Python hl_lines="1  14-15  18-20  33"
-    {!> ../../../docs_src/extra_models/tutorial003_py310.py!}
-    ```
+{* ../../docs_src/extra_models/tutorial003.py hl[1,14:15,18:20,33] *}
 
-=== "Python 3.8+"
+### `Union` in Python 3.10 { #union-in-python-3-10 }
 
-    ```Python hl_lines="1  14-15  18-20  33"
-    {!> ../../../docs_src/extra_models/tutorial003.py!}
-    ```
+In diesem Beispiel übergeben wir `Union[PlaneItem, CarItem]` als Wert des Arguments `response_model`.
 
-### `Union` in Python 3.10
+Da wir es als **Wert an ein Argument übergeben**, anstatt es in einer **Typannotation** zu verwenden, müssen wir `Union` verwenden, sogar in Python 3.10.
 
-In diesem Beispiel übergeben wir dem Argument `response_model` den Wert `Union[PlaneItem, CarItem]`.
-
-Da wir es als **Wert einem Argument überreichen**, statt es als **Typannotation** zu verwenden, müssen wir `Union` verwenden, selbst in Python 3.10.
-
-Wenn es eine Typannotation gewesen wäre, hätten wir auch den vertikalen Trennstrich verwenden können, wie in:
+Wäre es eine Typannotation gewesen, hätten wir den vertikalen Strich verwenden können, wie in:
 
 ```Python
 some_variable: PlaneItem | CarItem
 ```
 
-Aber wenn wir das in der Zuweisung `response_model=PlaneItem | CarItem` machen, erhalten wir eine Fehlermeldung, da Python versucht, eine **ungültige Operation** zwischen `PlaneItem` und `CarItem` durchzuführen, statt es als Typannotation zu interpretieren.
+Aber wenn wir das in der Zuweisung `response_model=PlaneItem | CarItem` machen, würden wir einen Fehler erhalten, weil Python versuchen würde, eine **ungültige Operation** zwischen `PlaneItem` und `CarItem` auszuführen, anstatt es als Typannotation zu interpretieren.
 
-## Listen von Modellen
+## Liste von Modellen { #list-of-models }
 
-Genauso können Sie eine Response deklarieren, die eine Liste von Objekten ist.
+Auf die gleiche Weise können Sie Responses von Listen von Objekten deklarieren.
 
-Verwenden Sie dafür Pythons Standard `typing.List` (oder nur `list` in Python 3.9 und darüber):
+Dafür verwenden Sie Pythons Standard-`list`:
 
-=== "Python 3.9+"
+{* ../../docs_src/extra_models/tutorial004.py hl[18] *}
 
-    ```Python hl_lines="18"
-    {!> ../../../docs_src/extra_models/tutorial004_py39.py!}
-    ```
+## Response mit beliebigem `dict` { #response-with-arbitrary-dict }
 
-=== "Python 3.8+"
+Sie können auch eine Response deklarieren, die ein einfaches beliebiges `dict` verwendet, indem Sie nur den Typ der Schlüssel und Werte deklarieren, ohne ein Pydantic-Modell zu verwenden.
 
-    ```Python hl_lines="1  20"
-    {!> ../../../docs_src/extra_models/tutorial004.py!}
-    ```
+Dies ist nützlich, wenn Sie die gültigen Feld-/Attributnamen nicht im Voraus kennen (die für ein Pydantic-Modell benötigt werden würden).
 
-## Response mit beliebigem `dict`
+In diesem Fall können Sie `dict` verwenden:
 
-Sie könne auch eine Response deklarieren, die ein beliebiges `dict` zurückgibt, bei dem nur die Typen der Schlüssel und der Werte bekannt sind, ohne ein Pydantic-Modell zu verwenden.
+{* ../../docs_src/extra_models/tutorial005.py hl[6] *}
 
-Das ist nützlich, wenn Sie die gültigen Feld-/Attribut-Namen von vorneherein nicht wissen (was für ein Pydantic-Modell notwendig ist).
-
-In diesem Fall können Sie `typing.Dict` verwenden (oder nur `dict` in Python 3.9 und darüber):
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="6"
-    {!> ../../../docs_src/extra_models/tutorial005_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="1  8"
-    {!> ../../../docs_src/extra_models/tutorial005.py!}
-    ```
-
-## Zusammenfassung
+## Zusammenfassung { #recap }
 
 Verwenden Sie gerne mehrere Pydantic-Modelle und vererben Sie je nach Bedarf.
 
-Sie brauchen kein einzelnes Datenmodell pro Einheit, wenn diese Einheit verschiedene Zustände annehmen kann. So wie unsere Benutzer-„Einheit“, welche einen Zustand mit `password`, einen mit `password_hash` und einen ohne Passwort hatte.
+Sie brauchen kein einzelnes Datenmodell pro Entität, wenn diese Entität in der Lage sein muss, verschiedene „Zustände“ zu haben. Die **Benutzer**-„Entität“ ist ein Beispiel, mit Zuständen, die `password`, `password_hash` oder kein Passwort umfassen.

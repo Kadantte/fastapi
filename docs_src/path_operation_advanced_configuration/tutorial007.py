@@ -1,5 +1,3 @@
-from typing import List
-
 import yaml
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, ValidationError
@@ -9,7 +7,7 @@ app = FastAPI()
 
 class Item(BaseModel):
     name: str
-    tags: List[str]
+    tags: list[str]
 
 
 @app.post(
@@ -30,5 +28,5 @@ async def create_item(request: Request):
     try:
         item = Item.model_validate(data)
     except ValidationError as e:
-        raise HTTPException(status_code=422, detail=e.errors())
+        raise HTTPException(status_code=422, detail=e.errors(include_url=False))
     return item

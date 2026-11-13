@@ -1,24 +1,24 @@
-# WebSockets
+# WebSockets { #websockets }
 
-You can use <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" class="external-link" target="_blank">WebSockets</a> with **FastAPI**.
+You can use [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) with **FastAPI**.
 
-## Install `WebSockets`
+## Install `websockets` { #install-websockets }
 
-First you need to install `WebSockets`:
+Add `websockets` (a Python library that makes it easy to use the "WebSocket" protocol) to your project:
 
 <div class="termy">
 
 ```console
-$ pip install websockets
+$ uv add websockets
 
 ---> 100%
 ```
 
 </div>
 
-## WebSockets client
+## WebSockets client { #websockets-client }
 
-### In production
+### In production { #in-production }
 
 In your production system, you probably have a frontend created with a modern framework like React, Vue.js or Angular.
 
@@ -38,48 +38,45 @@ In production you would have one of the options above.
 
 But it's the simplest way to focus on the server-side of WebSockets and have a working example:
 
-```Python hl_lines="2  6-38  41-43"
-{!../../../docs_src/websockets/tutorial001.py!}
-```
+{* ../../docs_src/websockets_/tutorial001.py hl[2,6:38,41:43] *}
 
-## Create a `websocket`
+## Create a `websocket` { #create-a-websocket }
 
 In your **FastAPI** application, create a `websocket`:
 
-```Python hl_lines="1  46-47"
-{!../../../docs_src/websockets/tutorial001.py!}
-```
+{* ../../docs_src/websockets_/tutorial001.py hl[1,46:47] *}
 
-!!! note "Technical Details"
-    You could also use `from starlette.websockets import WebSocket`.
+/// note | Technical Details
 
-    **FastAPI** provides the same `WebSocket` directly just as a convenience for you, the developer. But it comes directly from Starlette.
+You could also use `from starlette.websockets import WebSocket`.
 
-## Await for messages and send messages
+**FastAPI** provides the same `WebSocket` directly just as a convenience for you, the developer. But it comes directly from Starlette.
+
+///
+
+## Await for messages and send messages { #await-for-messages-and-send-messages }
 
 In your WebSocket route you can `await` for messages and send messages.
 
-```Python hl_lines="48-52"
-{!../../../docs_src/websockets/tutorial001.py!}
-```
+{* ../../docs_src/websockets_/tutorial001.py hl[48:52] *}
 
 You can receive and send binary, text, and JSON data.
 
-## Try it
+## Try it { #try-it }
 
-If your file is named `main.py`, run your application with:
+Put your code in a file `main.py` and then run your application:
 
 <div class="termy">
 
 ```console
-$ uvicorn main:app --reload
+$ uv run fastapi dev
 
 <span style="color: green;">INFO</span>:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
 </div>
 
-Open your browser at <a href="http://127.0.0.1:8000" class="external-link" target="_blank">http://127.0.0.1:8000</a>.
+Open your browser at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 You will see a simple page like:
 
@@ -99,7 +96,7 @@ You can send (and receive) many messages:
 
 And all of them will use the same WebSocket connection.
 
-## Using `Depends` and others
+## Using `Depends` and others { #using-depends-and-others }
 
 In WebSocket endpoints you can import from `fastapi` and use:
 
@@ -112,90 +109,52 @@ In WebSocket endpoints you can import from `fastapi` and use:
 
 They work the same way as for other FastAPI endpoints/*path operations*:
 
-=== "Python 3.10+"
+{* ../../docs_src/websockets_/tutorial002.py hl[68:69,82] *}
 
-    ```Python hl_lines="68-69  82"
-    {!> ../../../docs_src/websockets/tutorial002_an_py310.py!}
-    ```
+/// note
 
-=== "Python 3.9+"
+As this is a WebSocket it doesn't really make sense to raise an `HTTPException`, instead we raise a `WebSocketException`.
 
-    ```Python hl_lines="68-69  82"
-    {!> ../../../docs_src/websockets/tutorial002_an_py39.py!}
-    ```
+You can use a closing code from the [valid codes defined in the specification](https://tools.ietf.org/html/rfc6455#section-7.4.1).
 
-=== "Python 3.8+"
+///
 
-    ```Python hl_lines="69-70  83"
-    {!> ../../../docs_src/websockets/tutorial002_an.py!}
-    ```
+### Try the WebSockets with dependencies { #try-the-websockets-with-dependencies }
 
-=== "Python 3.10+ non-Annotated"
-
-    !!! tip
-        Prefer to use the `Annotated` version if possible.
-
-    ```Python hl_lines="66-67  79"
-    {!> ../../../docs_src/websockets/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ non-Annotated"
-
-    !!! tip
-        Prefer to use the `Annotated` version if possible.
-
-    ```Python hl_lines="68-69  81"
-    {!> ../../../docs_src/websockets/tutorial002.py!}
-    ```
-
-!!! info
-    As this is a WebSocket it doesn't really make sense to raise an `HTTPException`, instead we raise a `WebSocketException`.
-
-    You can use a closing code from the <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1" class="external-link" target="_blank">valid codes defined in the specification</a>.
-
-### Try the WebSockets with dependencies
-
-If your file is named `main.py`, run your application with:
+Run your application:
 
 <div class="termy">
 
 ```console
-$ uvicorn main:app --reload
+$ uv run fastapi dev
 
 <span style="color: green;">INFO</span>:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
 </div>
 
-Open your browser at <a href="http://127.0.0.1:8000" class="external-link" target="_blank">http://127.0.0.1:8000</a>.
+Open your browser at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 There you can set:
 
 * The "Item ID", used in the path.
 * The "Token" used as a query parameter.
 
-!!! tip
-    Notice that the query `token` will be handled by a dependency.
+/// tip
+
+Notice that the query `token` will be handled by a dependency.
+
+///
 
 With that you can connect the WebSocket and then send and receive messages:
 
 <img src="/img/tutorial/websockets/image05.png">
 
-## Handling disconnections and multiple clients
+## Handling disconnections and multiple clients { #handling-disconnections-and-multiple-clients }
 
 When a WebSocket connection is closed, the `await websocket.receive_text()` will raise a `WebSocketDisconnect` exception, which you can then catch and handle like in this example.
 
-=== "Python 3.9+"
-
-    ```Python hl_lines="79-81"
-    {!> ../../../docs_src/websockets/tutorial003_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="81-83"
-    {!> ../../../docs_src/websockets/tutorial003.py!}
-    ```
+{* ../../docs_src/websockets_/tutorial003.py hl[79:81] *}
 
 To try it out:
 
@@ -209,16 +168,19 @@ That will raise the `WebSocketDisconnect` exception, and all the other clients w
 Client #1596980209979 left the chat
 ```
 
-!!! tip
-    The app above is a minimal and simple example to demonstrate how to handle and broadcast messages to several WebSocket connections.
+/// tip
 
-    But keep in mind that, as everything is handled in memory, in a single list, it will only work while the process is running, and will only work with a single process.
+The app above is a minimal and simple example to demonstrate how to handle and broadcast messages to several WebSocket connections.
 
-    If you need something easy to integrate with FastAPI but that is more robust, supported by Redis, PostgreSQL or others, check <a href="https://github.com/encode/broadcaster" class="external-link" target="_blank">encode/broadcaster</a>.
+But keep in mind that, as everything is handled in memory, in a single list, it will only work while the process is running, and will only work with a single process.
 
-## More info
+If you need something easy to integrate with FastAPI but that is more robust, supported by Redis, PostgreSQL or others, check [encode/broadcaster](https://github.com/encode/broadcaster).
+
+///
+
+## More info { #more-info }
 
 To learn more about the options, check Starlette's documentation for:
 
-* <a href="https://www.starlette.io/websockets/" class="external-link" target="_blank">The `WebSocket` class</a>.
-* <a href="https://www.starlette.io/endpoints/#websocketendpoint" class="external-link" target="_blank">Class-based WebSocket handling</a>.
+* [The `WebSocket` class](https://starlette.dev/websockets/).
+* [Class-based WebSocket handling](https://starlette.dev/endpoints/#websocketendpoint).

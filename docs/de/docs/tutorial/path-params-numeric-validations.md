@@ -1,293 +1,154 @@
-# Pfad-Parameter und Validierung von Zahlen
+# Pfad-Parameter und Validierung von Zahlen { #path-parameters-and-numeric-validations }
 
-So wie Sie mit `Query` für Query-Parameter zusätzliche Validierungen und Metadaten hinzufügen können, können Sie das mittels `Path` auch für Pfad-Parameter tun.
+So wie Sie mit `Query` für Query-Parameter zusätzliche Validierungen und Metadaten deklarieren können, können Sie mit `Path` die gleichen Validierungen und Metadaten für Pfad-Parameter deklarieren.
 
-## `Path` importieren
+## `Path` importieren { #import-path }
 
-Importieren Sie zuerst `Path` von `fastapi`, und importieren Sie `Annotated`.
+Importieren Sie zuerst `Path` von `fastapi`, und importieren Sie `Annotated`:
 
-=== "Python 3.10+"
+{* ../../docs_src/path_params_numeric_validations/tutorial001.py hl[1,3] *}
 
-    ```Python hl_lines="1  3"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an_py310.py!}
-    ```
+/// note | Hinweis
 
-=== "Python 3.9+"
+FastAPI hat in Version 0.95.0 Unterstützung für `Annotated` hinzugefügt und es zur Verwendung empfohlen.
 
-    ```Python hl_lines="1  3"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an_py39.py!}
-    ```
+Wenn Sie eine ältere Version haben, würden Fehler angezeigt werden, wenn Sie versuchen, `Annotated` zu verwenden.
 
-=== "Python 3.8+"
+Stellen Sie sicher, dass Sie [FastAPI aktualisieren](../deployment/versions.md#upgrading-the-fastapi-versions), auf mindestens Version 0.95.1, bevor Sie `Annotated` verwenden.
 
-    ```Python hl_lines="3-4"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an.py!}
-    ```
+///
 
-=== "Python 3.10+ nicht annotiert"
+## Metadaten deklarieren { #declare-metadata }
 
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
+Sie können dieselben Parameter wie für `Query` deklarieren.
 
-    ```Python hl_lines="1"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_py310.py!}
-    ```
+Um zum Beispiel einen `title`-Metadaten-Wert für den Pfad-Parameter `item_id` zu deklarieren, können Sie schreiben:
 
-=== "Python 3.8+ nicht annotiert"
+{* ../../docs_src/path_params_numeric_validations/tutorial001.py hl[10] *}
 
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
+/// note | Hinweis
 
-    ```Python hl_lines="3"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001.py!}
-    ```
+Ein Pfad-Parameter ist immer erforderlich, da er Teil des URL-Pfads sein muss. Das Hinzufügen von `None` zu seinem Typ macht ihn nicht optional. Ein mit `Path` deklarierter Parameter kann keinen Defaultwert haben.
 
-!!! info
-    FastAPI unterstützt (und empfiehlt die Verwendung von) `Annotated` seit Version 0.95.0.
+///
 
-    Wenn Sie eine ältere Version haben, werden Sie Fehler angezeigt bekommen, wenn Sie versuchen, `Annotated` zu verwenden.
+## Die Parameter sortieren, wie Sie möchten { #order-the-parameters-as-you-need }
 
-    Bitte [aktualisieren Sie FastAPI](../deployment/versions.md#upgrade-der-fastapi-versionen){.internal-link target=_blank} daher mindestens zu Version 0.95.1, bevor Sie `Annotated` verwenden.
+/// tip | Tipp
 
-## Metadaten deklarieren
+Das ist wahrscheinlich nicht so wichtig oder notwendig, wenn Sie `Annotated` verwenden.
 
-Sie können die gleichen Parameter deklarieren wie für `Query`.
+///
 
-Um zum Beispiel einen `title`-Metadaten-Wert für den Pfad-Parameter `item_id` zu deklarieren, schreiben Sie:
+Angenommen, Sie möchten den Query-Parameter `q` als erforderlichen `str` deklarieren.
 
-=== "Python 3.10+"
+Und Sie müssen sonst nichts anderes für diesen Parameter deklarieren, Sie brauchen also `Query` nicht wirklich.
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an_py310.py!}
-    ```
+Aber Sie müssen dennoch `Path` für den `item_id`-Pfad-Parameter verwenden. Und aus irgendeinem Grund möchten Sie `Annotated` nicht verwenden.
 
-=== "Python 3.9+"
+Python wird sich beschweren, wenn Sie einen Wert mit einem „Default“ vor einem Wert ohne „Default“ setzen.
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an_py39.py!}
-    ```
+Aber Sie können die Reihenfolge ändern und den Wert ohne Default (den Query-Parameter `q`) zuerst setzen.
 
-=== "Python 3.8+"
-
-    ```Python hl_lines="11"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="8"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial001.py!}
-    ```
-
-!!! note "Hinweis"
-    Ein Pfad-Parameter ist immer erforderlich, weil er Teil des Pfads sein muss.
-
-    Sie sollten ihn daher mit `...` deklarieren, um ihn als erforderlich auszuzeichnen.
-
-    Doch selbst wenn Sie ihn mit `None` deklarieren, oder einen Defaultwert setzen, bewirkt das nichts, er bleibt immer erforderlich.
-
-## Sortieren Sie die Parameter, wie Sie möchten
-
-!!! tip "Tipp"
-    Wenn Sie `Annotated` verwenden, ist das folgende nicht so wichtig / nicht notwendig.
-
-Nehmen wir an, Sie möchten den Query-Parameter `q` als erforderlichen `str` deklarieren.
-
-Und Sie müssen sonst nichts anderes für den Parameter deklarieren, Sie brauchen also nicht wirklich `Query`.
-
-Aber Sie brauchen `Path` für den `item_id`-Pfad-Parameter. Und Sie möchten aus irgendeinem Grund nicht `Annotated` verwenden.
-
-Python wird sich beschweren, wenn Sie einen Parameter mit Defaultwert vor einen Parameter ohne Defaultwert setzen.
-
-Aber Sie können die Reihenfolge der Parameter ändern, den Query-Parameter ohne Defaultwert zuerst.
-
-Für **FastAPI** ist es nicht wichtig. Es erkennt die Parameter anhand ihres Namens, ihrer Typen, und ihrer Defaultwerte (`Query`, `Path`, usw.). Es kümmert sich nicht um die Reihenfolge.
+Für **FastAPI** spielt es keine Rolle. Es erkennt die Parameter anhand ihrer Namen, Typen und Default-Deklarationen (`Query`, `Path`, usw.), es kümmert sich nicht um die Reihenfolge.
 
 Sie können Ihre Funktion also so deklarieren:
 
-=== "Python 3.8 nicht annotiert"
+{* ../../docs_src/path_params_numeric_validations/tutorial002_non_an.py hl[7] *}
 
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
+Aber bedenken Sie, dass Sie dieses Problem nicht haben, wenn Sie `Annotated` verwenden. Die Reihenfolge spielt dann keine Rolle, da Sie keine Funktionsparameter-Defaultwerte für `Query()` oder `Path()` verwenden.
 
-    ```Python hl_lines="7"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial002.py!}
-    ```
+{* ../../docs_src/path_params_numeric_validations/tutorial002.py *}
 
-Aber bedenken Sie, dass Sie dieses Problem nicht haben, wenn Sie `Annotated` verwenden, da Sie nicht die Funktions-Parameter-Defaultwerte für `Query()` oder `Path()` verwenden.
+## Die Parameter sortieren, wie Sie möchten: Tricks { #order-the-parameters-as-you-need-tricks }
 
-=== "Python 3.9+"
+/// tip | Tipp
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial002_an_py39.py!}
-    ```
+Das ist wahrscheinlich nicht so wichtig oder notwendig, wenn Sie `Annotated` verwenden.
 
-=== "Python 3.8+"
+///
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial002_an.py!}
-    ```
+Hier ist ein **kleiner Trick**, der nützlich sein kann, obwohl Sie ihn nicht oft benötigen werden.
 
-## Sortieren Sie die Parameter wie Sie möchten: Tricks
+Wenn Sie:
 
-!!! tip "Tipp"
-    Wenn Sie `Annotated` verwenden, ist das folgende nicht so wichtig / nicht notwendig.
+* den `q`-Query-Parameter sowohl ohne `Query` als auch ohne Defaultwert deklarieren
+* den Pfad-Parameter `item_id` mit `Path` deklarieren
+* sie in einer anderen Reihenfolge haben
+* nicht `Annotated` verwenden
 
-Hier ein **kleiner Trick**, der nützlich sein kann, aber Sie werden ihn nicht oft brauchen.
+... möchten, dann hat Python eine kleine Spezial-Syntax dafür.
 
-Wenn Sie eines der folgenden Dinge tun möchten:
+Übergeben Sie `*`, als den ersten Parameter der Funktion.
 
-* den `q`-Parameter ohne `Query` oder irgendeinem Defaultwert deklarieren
-* den Pfad-Parameter `item_id` mittels `Path` deklarieren
-* die Parameter in einer unterschiedlichen Reihenfolge haben
-* `Annotated` nicht verwenden
+Python wird nichts mit diesem `*` machen, aber es wird wissen, dass alle folgenden Parameter als Schlüsselwortargumente (Schlüssel-Wert-Paare) verwendet werden sollen, auch bekannt als <abbr title="Von: K-ey W-ord Arg-uments - Schlüsselwortargumente"><code>kwargs</code></abbr>. Selbst wenn diese keinen Defaultwert haben.
 
-... dann hat Python eine kleine Spezial-Syntax für Sie.
+{* ../../docs_src/path_params_numeric_validations/tutorial003_non_an.py hl[7] *}
 
-Übergeben Sie der Funktion `*` als ersten Parameter.
+### Besser mit `Annotated` { #better-with-annotated }
 
-Python macht nichts mit diesem `*`, aber es wird wissen, dass alle folgenden Parameter als <abbr title="Keyword-Argument – Schlüsselwort-Argument: Das Argument wird anhand seines Namens erkannt, nicht anhand seiner Reihenfolge in der Argumentliste">Keyword-Argumente</abbr> (Schlüssel-Wert-Paare), auch bekannt als <abbr title="Von: K-ey W-ord Arg-uments"><code>kwargs</code></abbr>, verwendet werden. Selbst wenn diese keinen Defaultwert haben.
+Bedenken Sie, dass Sie, wenn Sie `Annotated` verwenden, da Sie keine Funktionsparameter-Defaultwerte verwenden, dieses Problem nicht haben werden und wahrscheinlich nicht `*` verwenden müssen.
 
-```Python hl_lines="7"
-{!../../../docs_src/path_params_numeric_validations/tutorial003.py!}
-```
+{* ../../docs_src/path_params_numeric_validations/tutorial003.py hl[10] *}
 
-### Besser mit `Annotated`
+## Validierung von Zahlen: Größer oder gleich { #number-validations-greater-than-or-equal }
 
-Bedenken Sie, dass Sie, wenn Sie `Annotated` verwenden, dieses Problem nicht haben, weil Sie keine Defaultwerte für Ihre Funktionsparameter haben. Sie müssen daher wahrscheinlich auch nicht `*` verwenden.
+Mit `Query` und `Path` (und anderen, die Sie später sehen werden) können Sie Zahlenbeschränkungen deklarieren.
 
-=== "Python 3.9+"
+Hier, mit `ge=1`, muss `item_id` eine ganze Zahl sein, die „`g`reater than or `e`qual to“ (größer oder gleich) `1` ist.
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial003_an_py39.py!}
-    ```
+{* ../../docs_src/path_params_numeric_validations/tutorial004.py hl[10] *}
 
-=== "Python 3.8+"
+## Validierung von Zahlen: Größer und kleiner oder gleich { #number-validations-greater-than-and-less-than-or-equal }
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial003_an.py!}
-    ```
+Das Gleiche gilt für:
 
-## Validierung von Zahlen: Größer oder gleich
+* `gt`: `g`reater `t`han (größer als)
+* `le`: `l`ess than or `e`qual (kleiner oder gleich)
 
-Mit `Query` und `Path` (und anderen, die Sie später kennenlernen), können Sie Zahlenbeschränkungen deklarieren.
+{* ../../docs_src/path_params_numeric_validations/tutorial005.py hl[10] *}
 
-Hier, mit `ge=1`, wird festgelegt, dass `item_id` eine Ganzzahl benötigt, die größer oder gleich `1` ist (`g`reater than or `e`qual).
-=== "Python 3.9+"
+## Validierung von Zahlen: Floats, größer und kleiner { #number-validations-floats-greater-than-and-less-than }
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial004_an_py39.py!}
-    ```
+Zahlenvalidierung funktioniert auch für <abbr title="Fließkommazahlen">`float`</abbr>-Werte.
 
-=== "Python 3.8+"
+Hier wird es wichtig, in der Lage zu sein, <abbr title="greater than - größer als"><code>gt</code></abbr> und nicht nur <abbr title="greater than or equal - größer oder gleich"><code>ge</code></abbr> zu deklarieren. Da Sie mit dieser Option zum Beispiel erzwingen können, dass ein Wert größer als `0` sein muss, selbst wenn er kleiner als `1` ist.
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial004_an.py!}
-    ```
+Also wäre `0.5` ein gültiger Wert. Aber `0.0` oder `0` nicht.
 
-=== "Python 3.8+ nicht annotiert"
+Und das Gleiche gilt für <abbr title="less than - kleiner als"><code>lt</code></abbr>.
 
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
+{* ../../docs_src/path_params_numeric_validations/tutorial006.py hl[13] *}
 
-    ```Python hl_lines="8"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial004.py!}
-    ```
+## Zusammenfassung { #recap }
 
-## Validierung von Zahlen: Größer und kleiner oder gleich
+Mit `Query`, `Path` (und anderen, die Sie noch nicht gesehen haben) können Sie Metadaten und Stringvalidierungen auf die gleichen Weisen deklarieren wie in [Query-Parameter und Stringvalidierungen](query-params-str-validations.md) beschrieben.
 
-Das Gleiche trifft zu auf:
+Und Sie können auch Zahlenvalidierungen deklarieren:
 
-* `gt`: `g`reater `t`han – größer als
-* `le`: `l`ess than or `e`qual – kleiner oder gleich
+* `gt`: `g`reater `t`han (größer als)
+* `ge`: `g`reater than or `e`qual (größer oder gleich)
+* `lt`: `l`ess `t`han (kleiner als)
+* `le`: `l`ess than or `e`qual (kleiner oder gleich)
 
-=== "Python 3.9+"
+/// note | Hinweis
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial005_an_py39.py!}
-    ```
+`Query`, `Path`, und andere Klassen, die Sie später sehen werden, sind Unterklassen einer gemeinsamen `Param`-Klasse.
 
-=== "Python 3.8+"
+Alle von ihnen teilen die gleichen Parameter für zusätzliche Validierung und Metadaten, die Sie gesehen haben.
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial005_an.py!}
-    ```
+///
 
-=== "Python 3.8+ nicht annotiert"
+/// note | Technische Details
 
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
+Wenn Sie `Query`, `Path` und andere von `fastapi` importieren, sind sie tatsächlich Funktionen.
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial005.py!}
-    ```
+Die, wenn sie aufgerufen werden, Instanzen von Klassen mit demselben Namen zurückgeben.
 
-## Validierung von Zahlen: Floats, größer und kleiner
+Sie importieren also `Query`, was eine Funktion ist. Und wenn Sie sie aufrufen, gibt sie eine Instanz einer Klasse zurück, die auch `Query` genannt wird.
 
-Zahlenvalidierung funktioniert auch für <abbr title="Kommazahl">`float`</abbr>-Werte.
+Diese Funktionen existieren (statt die Klassen direkt zu verwenden), damit Ihr Editor keine Fehlermeldungen über ihre Typen ausgibt.
 
-Hier wird es wichtig, in der Lage zu sein, <abbr title="greater than – größer als"><code>gt</code></abbr> zu deklarieren, und nicht nur <abbr title="greater than or equal – größer oder gleich"><code>ge</code></abbr>, da Sie hiermit bestimmen können, dass ein Wert, zum Beispiel, größer als `0` sein muss, obwohl er kleiner als `1` ist.
+Auf diese Weise können Sie Ihren normalen Editor und Ihre Programmier-Tools verwenden, ohne besondere Einstellungen vornehmen zu müssen, um diese Fehlermeldungen stummzuschalten.
 
-`0.5` wäre also ein gültiger Wert, aber nicht `0.0` oder `0`.
-
-Das gleiche gilt für <abbr title="less than – kleiner als"><code>lt</code></abbr>.
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="13"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial006_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="12"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial006_an.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="11"
-    {!> ../../../docs_src/path_params_numeric_validations/tutorial006.py!}
-    ```
-
-## Zusammenfassung
-
-Mit `Query` und `Path` (und anderen, die Sie noch nicht gesehen haben) können Sie Metadaten und Stringvalidierungen deklarieren, so wie in [Query-Parameter und Stringvalidierungen](query-params-str-validations.md){.internal-link target=_blank} beschrieben.
-
-Und Sie können auch Validierungen für Zahlen deklarieren:
-
-* `gt`: `g`reater `t`han – größer als
-* `ge`: `g`reater than or `e`qual – größer oder gleich
-* `lt`: `l`ess `t`han – kleiner als
-* `le`: `l`ess than or `e`qual – kleiner oder gleich
-
-!!! info
-    `Query`, `Path`, und andere Klassen, die Sie später kennenlernen, sind Unterklassen einer allgemeinen `Param`-Klasse.
-
-    Sie alle teilen die gleichen Parameter für zusätzliche Validierung und Metadaten, die Sie gesehen haben.
-
-!!! note "Technische Details"
-    `Query`, `Path` und andere, die Sie von `fastapi` importieren, sind tatsächlich Funktionen.
-
-    Die, wenn sie aufgerufen werden, Instanzen der Klassen mit demselben Namen zurückgeben.
-
-    Sie importieren also `Query`, welches eine Funktion ist. Aber wenn Sie es aufrufen, gibt es eine Instanz der Klasse zurück, die auch `Query` genannt wird.
-
-    Diese Funktionen existieren (statt die Klassen direkt zu verwenden), damit Ihr Editor keine Fehlermeldungen über ihre Typen ausgibt.
-
-    Auf diese Weise können Sie Ihren Editor und Ihre Programmier-Tools verwenden, ohne besondere Einstellungen vornehmen zu müssen, um diese Fehlermeldungen stummzuschalten.
+///

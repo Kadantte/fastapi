@@ -1,75 +1,22 @@
-# Aktuellen Benutzer abrufen
+# Aktuellen Benutzer abrufen { #get-current-user }
 
 Im vorherigen Kapitel hat das Sicherheitssystem (das auf dem Dependency Injection System basiert) der *Pfadoperation-Funktion* einen `token` vom Typ `str` überreicht:
 
-=== "Python 3.9+"
-
-    ```Python hl_lines="12"
-    {!> ../../../docs_src/security/tutorial001_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="11"
-    {!> ../../../docs_src/security/tutorial001_an.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/security/tutorial001.py!}
-    ```
+{* ../../docs_src/security/tutorial001.py hl[12] *}
 
 Aber das ist immer noch nicht so nützlich.
 
 Lassen wir es uns den aktuellen Benutzer überreichen.
 
-## Ein Benutzermodell erstellen
+## Ein Benutzermodell erstellen { #create-a-user-model }
 
 Erstellen wir zunächst ein Pydantic-Benutzermodell.
 
 So wie wir Pydantic zum Deklarieren von Bodys verwenden, können wir es auch überall sonst verwenden:
 
-=== "Python 3.10+"
+{* ../../docs_src/security/tutorial002.py hl[5,12:16] *}
 
-    ```Python hl_lines="5  12-16"
-    {!> ../../../docs_src/security/tutorial002_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="5  12-16"
-    {!> ../../../docs_src/security/tutorial002_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="5  13-17"
-    {!> ../../../docs_src/security/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="3  10-14"
-    {!> ../../../docs_src/security/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="5  12-16"
-    {!> ../../../docs_src/security/tutorial002.py!}
-    ```
-
-## Eine `get_current_user`-Abhängigkeit erstellen
+## Eine `get_current_user`-Abhängigkeit erstellen { #create-a-get-current-user-dependency }
 
 Erstellen wir eine Abhängigkeit `get_current_user`.
 
@@ -79,137 +26,41 @@ Erinnern Sie sich, dass Abhängigkeiten Unterabhängigkeiten haben können?
 
 So wie wir es zuvor in der *Pfadoperation* direkt gemacht haben, erhält unsere neue Abhängigkeit `get_current_user` von der Unterabhängigkeit `oauth2_scheme` einen `token` vom Typ `str`:
 
-=== "Python 3.10+"
+{* ../../docs_src/security/tutorial002.py hl[25] *}
 
-    ```Python hl_lines="25"
-    {!> ../../../docs_src/security/tutorial002_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="25"
-    {!> ../../../docs_src/security/tutorial002_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="26"
-    {!> ../../../docs_src/security/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="23"
-    {!> ../../../docs_src/security/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="25"
-    {!> ../../../docs_src/security/tutorial002.py!}
-    ```
-
-## Den Benutzer holen
+## Den Benutzer abrufen { #get-the-user }
 
 `get_current_user` wird eine von uns erstellte (gefakte) Hilfsfunktion verwenden, welche einen Token vom Typ `str` entgegennimmt und unser Pydantic-`User`-Modell zurückgibt:
 
-=== "Python 3.10+"
+{* ../../docs_src/security/tutorial002.py hl[19:22,26:27] *}
 
-    ```Python hl_lines="19-22  26-27"
-    {!> ../../../docs_src/security/tutorial002_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="19-22  26-27"
-    {!> ../../../docs_src/security/tutorial002_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="20-23  27-28"
-    {!> ../../../docs_src/security/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="17-20  24-25"
-    {!> ../../../docs_src/security/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="19-22  26-27"
-    {!> ../../../docs_src/security/tutorial002.py!}
-    ```
-
-## Den aktuellen Benutzer einfügen
+## Den aktuellen Benutzer einfügen { #inject-the-current-user }
 
 Und jetzt können wir wiederum `Depends` mit unserem `get_current_user` in der *Pfadoperation* verwenden:
 
-=== "Python 3.10+"
-
-    ```Python hl_lines="31"
-    {!> ../../../docs_src/security/tutorial002_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="31"
-    {!> ../../../docs_src/security/tutorial002_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="32"
-    {!> ../../../docs_src/security/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="29"
-    {!> ../../../docs_src/security/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="31"
-    {!> ../../../docs_src/security/tutorial002.py!}
-    ```
+{* ../../docs_src/security/tutorial002.py hl[31] *}
 
 Beachten Sie, dass wir als Typ von `current_user` das Pydantic-Modell `User` deklarieren.
 
 Das wird uns innerhalb der Funktion bei Codevervollständigung und Typprüfungen helfen.
 
-!!! tip "Tipp"
-    Sie erinnern sich vielleicht, dass Requestbodys ebenfalls mit Pydantic-Modellen deklariert werden.
+/// tip | Tipp
 
-    Weil Sie `Depends` verwenden, wird **FastAPI** hier aber nicht verwirrt.
+Sie erinnern sich vielleicht, dass <abbr title="Anfragekörper">Requestbodys</abbr> ebenfalls mit Pydantic-Modellen deklariert werden.
 
-!!! check
-    Die Art und Weise, wie dieses System von Abhängigkeiten konzipiert ist, ermöglicht es uns, verschiedene Abhängigkeiten (verschiedene „Dependables“) zu haben, die alle ein `User`-Modell zurückgeben.
+Weil Sie `Depends` verwenden, wird **FastAPI** hier aber nicht verwirrt.
 
-    Wir sind nicht darauf beschränkt, nur eine Abhängigkeit zu haben, die diesen Typ von Daten zurückgeben kann.
+///
 
-## Andere Modelle
+/// tip | Tipp
+
+Die Art und Weise, wie dieses System von Abhängigkeiten konzipiert ist, ermöglicht es uns, verschiedene Abhängigkeiten (verschiedene „Dependables“) zu haben, die alle ein `User`-Modell zurückgeben.
+
+Wir sind nicht darauf beschränkt, nur eine Abhängigkeit zu haben, die diesen Typ von Daten zurückgeben kann.
+
+///
+
+## Andere Modelle { #other-models }
 
 Sie können jetzt den aktuellen Benutzer direkt in den *Pfadoperation-Funktionen* abrufen und die Sicherheitsmechanismen auf **Dependency Injection** Ebene handhaben, mittels `Depends`.
 
@@ -225,7 +76,7 @@ Sie haben eigentlich keine Benutzer, die sich bei Ihrer Anwendung anmelden, sond
 
 Verwenden Sie einfach jede Art von Modell, jede Art von Klasse, jede Art von Datenbank, die Sie für Ihre Anwendung benötigen. **FastAPI** deckt das alles mit seinem Dependency Injection System ab.
 
-## Codegröße
+## Codegröße { #code-size }
 
 Dieses Beispiel mag ausführlich erscheinen. Bedenken Sie, dass wir Sicherheit, Datenmodelle, Hilfsfunktionen und *Pfadoperationen* in derselben Datei vermischen.
 
@@ -241,43 +92,9 @@ Und alle (oder beliebige Teile davon) können Vorteil ziehen aus der Wiederverwe
 
 Und alle diese Tausenden von *Pfadoperationen* können nur drei Zeilen lang sein:
 
-=== "Python 3.10+"
+{* ../../docs_src/security/tutorial002.py hl[30:32] *}
 
-    ```Python hl_lines="30-32"
-    {!> ../../../docs_src/security/tutorial002_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="30-32"
-    {!> ../../../docs_src/security/tutorial002_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="31-33"
-    {!> ../../../docs_src/security/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="28-30"
-    {!> ../../../docs_src/security/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ nicht annotiert"
-
-    !!! tip "Tipp"
-        Bevorzugen Sie die `Annotated`-Version, falls möglich.
-
-    ```Python hl_lines="30-32"
-    {!> ../../../docs_src/security/tutorial002.py!}
-    ```
-
-## Zusammenfassung
+## Zusammenfassung { #recap }
 
 Sie können jetzt den aktuellen Benutzer direkt in Ihrer *Pfadoperation-Funktion* abrufen.
 

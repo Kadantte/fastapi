@@ -5,26 +5,24 @@ on:
     branches:
       - master
   pull_request:
-    types:
-      - opened
-      - synchronize
+permissions: {}
 
 jobs:
   test-redistribute:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
         with:
-          python-version: "3.10"
-          # Issue ref: https://github.com/actions/setup-python/issues/436
-          # cache: "pip"
-          # cache-dependency-path: pyproject.toml
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version-file: ".python-version"
       - name: Install build dependencies
         run: pip install build
       - name: Build source distribution
@@ -35,17 +33,30 @@ jobs:
           tar xvf fastapi*.tar.gz
       - name: Install test dependencies
         run: |
-          cd dist/fastapi-*/
-          pip install -r requirements-tests.txt
+          cd dist/fastapi*/
+          pip install --group tests --editable .[all]
       - name: Run source distribution tests
         run: |
-          cd dist/fastapi-*/
+          cd dist/fastapi*/
           bash scripts/test.sh
       - name: Build wheel distribution
         run: |
           cd dist
-          pip wheel --no-deps fastapi-*.tar.gz
+          pip wheel --no-deps fastapi*.tar.gz
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
+
+  # https://github.com/marketplace/actions/alls-green#why
+  test-redistribute-alls-green:  # This job does nothing and is only used for the branch protection
+    if: always()
+    needs:
+      - test-redistribute
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}

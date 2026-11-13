@@ -1,6 +1,6 @@
-# 测试依赖项
+# 使用覆盖测试依赖项 { #testing-dependencies-with-overrides }
 
-## 测试时覆盖依赖项
+## 测试时覆盖依赖项 { #overriding-dependencies-during-testing }
 
 有些场景下，您可能需要在测试时覆盖依赖项。
 
@@ -8,7 +8,7 @@
 
 反之，要在测试期间（或只是为某些特定测试）提供只用于测试的依赖项，并使用此依赖项的值替换原有依赖项的值。
 
-### 用例：外部服务
+### 用例：外部服务 { #use-cases-external-service }
 
 常见实例是调用外部第三方身份验证应用。
 
@@ -20,25 +20,25 @@
 
 此时，最好覆盖调用外部验证应用的依赖项，使用返回模拟测试用户的自定义依赖项就可以了。
 
-### 使用 `app.dependency_overrides` 属性
+### 使用 `app.dependency_overrides` 属性 { #use-the-app-dependency-overrides-attribute }
 
-对于这些用例，**FastAPI** 应用支持 `app.dependcy_overrides` 属性，该属性就是**字典**。
+对于这些用例，**FastAPI** 应用支持 `app.dependency_overrides` 属性，该属性就是**字典**。
 
 要在测试时覆盖原有依赖项，这个字典的键应当是原依赖项（函数），值是覆盖依赖项（另一个函数）。
 
 这样一来，**FastAPI** 就会调用覆盖依赖项，不再调用原依赖项。
 
-```Python hl_lines="26-27  30"
-{!../../../docs_src/dependency_testing/tutorial001.py!}
-```
+{* ../../docs_src/dependency_testing/tutorial001.py hl[26:27,30] *}
 
-!!! tip "提示"
+/// tip | 提示
 
-    **FastAPI** 应用中的任何位置都可以实现覆盖依赖项。
+**FastAPI** 应用中的任何位置都可以实现覆盖依赖项。
 
-    原依赖项可用于*路径操作函数*、*路径操作装饰器*（不需要返回值时）、`.include_router()` 调用等。
+原依赖项可用于*路径操作函数*、*路径操作装饰器*（不需要返回值时）、`.include_router()` 调用等。
 
-    FastAPI 可以覆盖这些位置的依赖项。
+FastAPI 可以覆盖这些位置的依赖项。
+
+///
 
 然后，使用 `app.dependency_overrides` 把覆盖依赖项重置为空**字典**：
 
@@ -46,6 +46,8 @@
 app.dependency_overrides = {}
 ```
 
-!!! tip "提示"
+/// tip | 提示
 
-    如果只在某些测试时覆盖依赖项，您可以在测试开始时（在测试函数内）设置覆盖依赖项，并在结束时（在测试函数结尾）重置覆盖依赖项。
+如果只在某些测试时覆盖依赖项，您可以在测试开始时（在测试函数内）设置覆盖依赖项，并在结束时（在测试函数结尾）重置覆盖依赖项。
+
+///

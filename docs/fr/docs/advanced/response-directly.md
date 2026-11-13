@@ -1,63 +1,83 @@
-# Renvoyer directement une réponse
+# Renvoyer directement une réponse { #return-a-response-directly }
 
-Lorsque vous créez une *opération de chemins* **FastAPI**, vous pouvez normalement retourner n'importe quelle donnée : un `dict`, une `list`, un modèle Pydantic, un modèle de base de données, etc.
+Lorsque vous créez un *chemin d'accès* **FastAPI**, vous pouvez normalement renvoyer n'importe quelle donnée : un `dict`, une `list`, un modèle Pydantic, un modèle de base de données, etc.
 
-Par défaut, **FastAPI** convertirait automatiquement cette valeur de retour en JSON en utilisant le `jsonable_encoder` expliqué dans [JSON Compatible Encoder](../tutorial/encoder.md){.internal-link target=_blank}.
+Si vous déclarez un [Modèle de réponse](../tutorial/response-model.md), FastAPI l'utilise pour sérialiser les données en JSON, en utilisant Pydantic.
 
-Ensuite, en arrière-plan, il mettra ces données JSON-compatible (par exemple un `dict`) à l'intérieur d'un `JSONResponse` qui sera utilisé pour envoyer la réponse au client.
+Si vous ne déclarez pas de modèle de réponse, FastAPI utilise le `jsonable_encoder` expliqué dans [Encodeur compatible JSON](../tutorial/encoder.md) et le place dans une `JSONResponse`.
 
-Mais vous pouvez retourner une `JSONResponse` directement à partir de vos *opérations de chemin*.
+Vous pouvez également créer directement une `JSONResponse` et la renvoyer.
 
-Cela peut être utile, par exemple, pour retourner des en-têtes personnalisés ou des cookies.
+/// tip | Astuce
 
-## Renvoyer une `Response`
+Vous aurez normalement une bien meilleure performance en utilisant un [Modèle de réponse](../tutorial/response-model.md) qu'en renvoyant directement une `JSONResponse`, car de cette façon la sérialisation des données est effectuée par Pydantic, en Rust.
 
-En fait, vous pouvez retourner n'importe quelle `Response` ou n'importe quelle sous-classe de celle-ci.
+///
 
-!!! Note
-    `JSONResponse` est elle-même une sous-classe de `Response`.
+## Renvoyer une `Response` { #return-a-response }
 
-Et quand vous retournez une `Response`, **FastAPI** la transmet directement.
+Vous pouvez renvoyer une `Response` ou n'importe laquelle de ses sous-classes.
 
-Elle ne fera aucune conversion de données avec les modèles Pydantic, elle ne convertira pas le contenu en un type quelconque.
+/// note | Remarque
 
-Cela vous donne beaucoup de flexibilité. Vous pouvez retourner n'importe quel type de données, surcharger n'importe quelle déclaration ou validation de données.
+`JSONResponse` est elle-même une sous-classe de `Response`.
 
-## Utiliser le `jsonable_encoder` dans une `Response`
+///
 
-Parce que **FastAPI** n'apporte aucune modification à une `Response` que vous retournez, vous devez vous assurer que son contenu est prêt à être utilisé (sérialisable).
+Et lorsque vous renvoyez une `Response`, **FastAPI** la transmet directement.
 
-Par exemple, vous ne pouvez pas mettre un modèle Pydantic dans une `JSONResponse` sans d'abord le convertir en un `dict` avec tous les types de données (comme `datetime`, `UUID`, etc.) convertis en types compatibles avec JSON.
+Il n'effectue aucune conversion de données avec les modèles Pydantic, il ne convertit pas le contenu en un autre type, etc.
 
-Pour ces cas, vous pouvez spécifier un appel à `jsonable_encoder` pour convertir vos données avant de les passer à une réponse :
+Cela vous donne beaucoup de flexibilité. Vous pouvez renvoyer n'importe quel type de données, surcharger toute déclaration ou validation de données, etc.
 
-```Python hl_lines="6-7  21-22"
-{!../../../docs_src/response_directly/tutorial001.py!}
-```
+Cela vous donne aussi beaucoup de responsabilité. Vous devez vous assurer que les données que vous renvoyez sont correctes, dans le bon format, qu'elles peuvent être sérialisées, etc.
 
-!!! note "Détails techniques"
-    Vous pouvez aussi utiliser `from starlette.responses import JSONResponse`.
+## Utiliser le `jsonable_encoder` dans une `Response` { #using-the-jsonable-encoder-in-a-response }
 
-    **FastAPI** fournit le même objet `starlette.responses` que `fastapi.responses` juste par commodité pour le développeur. Mais la plupart des réponses disponibles proviennent directement de Starlette.
+Comme **FastAPI** n'apporte aucune modification à une `Response` que vous renvoyez, vous devez vous assurer que son contenu est prêt pour cela.
 
-## Renvoyer une `Response` personnalisée
+Par exemple, vous ne pouvez pas mettre un modèle Pydantic dans une `JSONResponse` sans d'abord le convertir en un `dict` avec tous les types de données (comme `datetime`, `UUID`, etc.) convertis en types compatibles JSON.
 
-L'exemple ci-dessus montre toutes les parties dont vous avez besoin, mais il n'est pas encore très utile, car vous auriez pu retourner l'`item` directement, et **FastAPI** l'aurait mis dans une `JSONResponse` pour vous, en le convertissant en `dict`, etc. Tout cela par défaut.
+Pour ces cas, vous pouvez utiliser le `jsonable_encoder` pour convertir vos données avant de les passer à une réponse :
 
-Maintenant, voyons comment vous pourriez utiliser cela pour retourner une réponse personnalisée.
+{* ../../docs_src/response_directly/tutorial001.py hl[5:6,20:21] *}
 
-Disons que vous voulez retourner une réponse <a href="https://en.wikipedia.org/wiki/XML" class="external-link" target="_blank">XML</a>.
+/// note | Détails techniques
 
-Vous pouvez mettre votre contenu XML dans une chaîne de caractères, la placer dans une `Response`, et la retourner :
+Vous pouvez aussi utiliser `from starlette.responses import JSONResponse`.
 
-```Python hl_lines="1  18"
-{!../../../docs_src/response_directly/tutorial002.py!}
-```
+**FastAPI** fournit le même `starlette.responses` que `fastapi.responses` uniquement par commodité pour vous, développeur. Mais la plupart des réponses disponibles proviennent directement de Starlette.
 
-## Notes
+///
+
+## Renvoyer une `Response` personnalisée { #returning-a-custom-response }
+
+L'exemple ci-dessus montre toutes les parties dont vous avez besoin, mais il n'est pas encore très utile, car vous auriez pu renvoyer l'`item` directement, et **FastAPI** l'aurait placé dans une `JSONResponse` pour vous, en le convertissant en `dict`, etc. Tout cela par défaut.
+
+Voyons maintenant comment vous pourriez utiliser cela pour renvoyer une réponse personnalisée.
+
+Disons que vous voulez renvoyer une [réponse XML](https://en.wikipedia.org/wiki/XML).
+
+Vous pouvez placer votre contenu XML dans une chaîne de caractères, le mettre dans une `Response` et le renvoyer :
+
+{* ../../docs_src/response_directly/tutorial002.py hl[1,18] *}
+
+## Comprendre le fonctionnement d'un Modèle de réponse { #how-a-response-model-works }
+
+Lorsque vous déclarez un [Modèle de réponse - Type de retour](../tutorial/response-model.md) dans un chemin d'accès, **FastAPI** l'utilise pour sérialiser les données en JSON, en utilisant Pydantic.
+
+{* ../../docs_src/response_model/tutorial001_01.py hl[16,21] *}
+
+Comme cela se passe côté Rust, la performance sera bien meilleure que si cela était fait avec le Python classique et la classe `JSONResponse`.
+
+Lorsque vous utilisez un `response_model` ou un type de retour, FastAPI n'utilise ni le `jsonable_encoder` pour convertir les données (ce qui serait plus lent) ni la classe `JSONResponse`.
+
+À la place, il prend les octets JSON générés avec Pydantic en utilisant le modèle de réponse (ou le type de retour) et renvoie directement une `Response` avec le type de média approprié pour JSON (`application/json`).
+
+## Notes { #notes }
 
 Lorsque vous renvoyez une `Response` directement, ses données ne sont pas validées, converties (sérialisées), ni documentées automatiquement.
 
-Mais vous pouvez toujours les documenter comme décrit dans [Additional Responses in OpenAPI](additional-responses.md){.internal-link target=_blank}.
+Mais vous pouvez toujours les documenter comme décrit dans [Réponses supplémentaires dans OpenAPI](additional-responses.md).
 
-Vous pouvez voir dans les sections suivantes comment utiliser/déclarer ces `Response`s personnalisées tout en conservant la conversion automatique des données, la documentation, etc.
+Vous pouvez voir dans les sections suivantes comment utiliser/déclarer ces `Response` personnalisées tout en conservant la conversion automatique des données, la documentation, etc.

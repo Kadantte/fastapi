@@ -1,4 +1,4 @@
-# Дополнительные модели
+# Дополнительные модели { #extra-models }
 
 В продолжение прошлого примера будет уже обычным делом иметь несколько связанных между собой моделей.
 
@@ -8,34 +8,27 @@
 * **Модель для вывода** не должна содержать пароль.
 * **Модель для базы данных**, возможно, должна содержать хэшированный пароль.
 
-!!! danger "Внимание"
-    Никогда не храните пароли пользователей в чистом виде. Всегда храните "безопасный хэш", который вы затем сможете проверить.
+/// danger | Внимание
 
-    Если вам это не знакомо, вы можете узнать про "хэш пароля" в [главах о безопасности](security/simple-oauth2.md#password-hashing){.internal-link target=_blank}.
+Никогда не храните пароли пользователей в чистом виде. Всегда храните "безопасный хэш", который вы затем сможете проверить.
 
-## Множественные модели
+Если вам это не знакомо, вы можете узнать про "хэш пароля" в [главах о безопасности](security/simple-oauth2.md#password-hashing).
+
+///
+
+## Множественные модели { #multiple-models }
 
 Ниже изложена основная идея того, как могут выглядеть эти модели с полями для паролей, а также описаны места, где они используются:
 
-=== "Python 3.10+"
+{* ../../docs_src/extra_models/tutorial001.py hl[7,9,14,20,22,27:28,31:33,38:39] *}
 
-    ```Python hl_lines="7  9  14  20  22  27-28  31-33  38-39"
-    {!> ../../../docs_src/extra_models/tutorial001_py310.py!}
-    ```
+### Про `**user_in.model_dump()` { #about-user-in-model-dump }
 
-=== "Python 3.8+"
+#### `.model_dump()` из Pydantic { #pydantics-model-dump }
 
-    ```Python hl_lines="9  11  16  22  24  29-30  33-35  40-41"
-    {!> ../../../docs_src/extra_models/tutorial001.py!}
-    ```
+`user_in` — это Pydantic-модель класса `UserIn`.
 
-### Про `**user_in.dict()`
-
-#### `.dict()` из Pydantic
-
-`user_in` - это Pydantic-модель класса `UserIn`.
-
-У Pydantic-моделей есть метод `.dict()`, который возвращает `dict` с данными модели.
+У Pydantic-моделей есть метод `.model_dump()`, который возвращает `dict` с данными модели.
 
 Поэтому, если мы создадим Pydantic-объект `user_in` таким способом:
 
@@ -46,10 +39,10 @@ user_in = UserIn(username="john", password="secret", email="john.doe@example.com
 и затем вызовем:
 
 ```Python
-user_dict = user_in.dict()
+user_dict = user_in.model_dump()
 ```
 
-то теперь у нас есть `dict` с данными модели в переменной `user_dict` (это `dict` вместо объекта Pydantic-модели).
+то теперь у нас есть `dict` с данными в переменной `user_dict` (это `dict` вместо объекта Pydantic-модели).
 
 И если мы вызовем:
 
@@ -57,20 +50,20 @@ user_dict = user_in.dict()
 print(user_dict)
 ```
 
-мы можем получить `dict` с такими данными:
+мы получим Python `dict` с:
 
 ```Python
 {
-    'username': 'john',
-    'password': 'secret',
-    'email': 'john.doe@example.com',
-    'full_name': None,
+    "username": "john",
+    "password": "secret",
+    "email": "john.doe@example.com",
+    "full_name": None,
 }
 ```
 
-#### Распаковка `dict`
+#### Распаковка `dict` { #unpacking-a-dict }
 
-Если мы возьмём `dict` наподобие `user_dict` и передадим его в функцию (или класс), используя `**user_dict`, Python распакует его. Он передаст ключи и значения `user_dict` напрямую как аргументы типа ключ-значение.
+Если мы возьмём `dict` наподобие `user_dict` и передадим его в функцию (или класс), используя `**user_dict`, Python его "распакует". Он передаст ключи и значения `user_dict` напрямую как аргументы типа ключ-значение.
 
 Поэтому, продолжая описанный выше пример с `user_dict`, написание такого кода:
 
@@ -78,7 +71,7 @@ print(user_dict)
 UserInDB(**user_dict)
 ```
 
-Будет работать так же, как примерно такой код:
+будет эквивалентно:
 
 ```Python
 UserInDB(
@@ -89,62 +82,65 @@ UserInDB(
 )
 ```
 
-Или, если для большей точности мы напрямую используем `user_dict` с любым потенциальным содержимым, то этот пример будет выглядеть так:
+Или, более точно, если использовать `user_dict` напрямую, с любым содержимым, которое он может иметь в будущем:
 
 ```Python
 UserInDB(
-    username = user_dict["username"],
-    password = user_dict["password"],
-    email = user_dict["email"],
-    full_name = user_dict["full_name"],
+    username=user_dict["username"],
+    password=user_dict["password"],
+    email=user_dict["email"],
+    full_name=user_dict["full_name"],
 )
 ```
 
-#### Pydantic-модель из содержимого другой модели
+#### Pydantic-модель из содержимого другой { #a-pydantic-model-from-the-contents-of-another }
 
-Как в примере выше мы получили `user_dict` из `user_in.dict()`, этот код:
+Как в примере выше мы получили `user_dict` из `user_in.model_dump()`, этот код:
 
 ```Python
-user_dict = user_in.dict()
+user_dict = user_in.model_dump()
 UserInDB(**user_dict)
 ```
 
 будет равнозначен такому:
 
 ```Python
-UserInDB(**user_in.dict())
+UserInDB(**user_in.model_dump())
 ```
 
-...потому что `user_in.dict()` - это `dict`, и затем мы указываем, чтобы Python его "распаковал", когда передаём его в `UserInDB` и ставим перед ним `**`.
+...потому что `user_in.model_dump()` — это `dict`, и затем мы указываем, чтобы Python его "распаковал", когда передаём его в `UserInDB` с префиксом `**`.
 
 Таким образом мы получаем Pydantic-модель на основе данных из другой Pydantic-модели.
 
-#### Распаковка `dict` и дополнительные именованные аргументы
+#### Распаковка `dict` и дополнительные именованные аргументы { #unpacking-a-dict-and-extra-keywords }
 
 И затем, если мы добавим дополнительный именованный аргумент `hashed_password=hashed_password` как здесь:
 
 ```Python
-UserInDB(**user_in.dict(), hashed_password=hashed_password)
+UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
 ```
 
-... то мы получим что-то подобное:
+...то в итоге получится что-то подобное:
 
 ```Python
 UserInDB(
-    username = user_dict["username"],
-    password = user_dict["password"],
-    email = user_dict["email"],
-    full_name = user_dict["full_name"],
-    hashed_password = hashed_password,
+    username=user_dict["username"],
+    password=user_dict["password"],
+    email=user_dict["email"],
+    full_name=user_dict["full_name"],
+    hashed_password=hashed_password,
 )
 ```
 
-!!! warning "Предупреждение"
-    Цель использованных в примере вспомогательных функций - не более чем демонстрация возможных операций с данными, но, конечно, они не обеспечивают настоящую безопасность.
+/// warning | Предупреждение
 
-## Сократите дублирование
+Вспомогательные дополнительные функции `fake_password_hasher` и `fake_save_user` используются только для демонстрации возможного потока данных и, конечно, не обеспечивают настоящую безопасность.
 
-Сокращение дублирования кода - это одна из главных идей **FastAPI**.
+///
+
+## Сократите дублирование { #reduce-duplication }
+
+Сокращение дублирования кода — это одна из главных идей **FastAPI**.
 
 Поскольку дублирование кода повышает риск появления багов, проблем с безопасностью, проблем десинхронизации кода (когда вы обновляете код в одном месте, но не обновляете в другом), и т.д.
 
@@ -152,48 +148,31 @@ UserInDB(
 
 Мы можем это улучшить.
 
-Мы можем определить модель `UserBase`, которая будет базовой для остальных моделей. И затем мы можем создать подклассы этой модели, которые будут наследовать её атрибуты (объявления типов, валидацию, и т.п.).
+Мы можем объявить модель `UserBase`, которая будет базовой для остальных моделей. И затем мы можем создать подклассы этой модели, которые будут наследовать её атрибуты (объявления типов, валидацию, и т.п.).
 
 Все операции конвертации, валидации, документации, и т.п. будут по-прежнему работать нормально.
 
-В этом случае мы можем определить только различия между моделями (с `password` в чистом виде, с `hashed_password` и без пароля):
+В этом случае мы можем объявить только различия между моделями (с `password` в чистом виде, с `hashed_password` и без пароля):
 
-=== "Python 3.10+"
+{* ../../docs_src/extra_models/tutorial002.py hl[7,13:14,17:18,21:22] *}
 
-    ```Python hl_lines="7  13-14  17-18  21-22"
-    {!> ../../../docs_src/extra_models/tutorial002_py310.py!}
-    ```
+## `Union` или `anyOf` { #union-or-anyof }
 
-=== "Python 3.8+"
-
-    ```Python hl_lines="9  15-16  19-20  23-24"
-    {!> ../../../docs_src/extra_models/tutorial002.py!}
-    ```
-
-## `Union` или `anyOf`
-
-Вы можете определить ответ как `Union` из двух типов. Это означает, что ответ должен соответствовать одному из них.
+Вы можете объявить HTTP-ответ как `Union` из двух или более типов. Это означает, что HTTP-ответ может быть любым из них.
 
 Он будет определён в OpenAPI как `anyOf`.
 
-Для этого используйте стандартные аннотации типов в Python <a href="https://docs.python.org/3/library/typing.html#typing.Union" class="external-link" target="_blank">`typing.Union`</a>:
+Для этого используйте стандартную аннотацию типов в Python [`typing.Union`](https://docs.python.org/3/library/typing.html#typing.Union):
 
-!!! note "Примечание"
-    При объявлении <a href="https://docs.pydantic.dev/latest/concepts/types/#unions" class="external-link" target="_blank">`Union`</a>, сначала указывайте наиболее детальные типы, затем менее детальные. В примере ниже более детальный `PlaneItem` стоит перед `CarItem` в `Union[PlaneItem, CarItem]`.
+/// note | Примечание
 
-=== "Python 3.10+"
+При объявлении [`Union`](https://pydantic.dev/docs/validation/latest/concepts/unions/) сначала указывайте наиболее специфичный тип, затем менее специфичный. В примере ниже более специфичный `PlaneItem` стоит перед `CarItem` в `Union[PlaneItem, CarItem]`.
 
-    ```Python hl_lines="1  14-15  18-20  33"
-    {!> ../../../docs_src/extra_models/tutorial003_py310.py!}
-    ```
+///
 
-=== "Python 3.8+"
+{* ../../docs_src/extra_models/tutorial003.py hl[1,14:15,18:20,33] *}
 
-    ```Python hl_lines="1  14-15  18-20  33"
-    {!> ../../../docs_src/extra_models/tutorial003.py!}
-    ```
-
-### `Union` в Python 3.10
+### `Union` в Python 3.10 { #union-in-python-3-10 }
 
 В этом примере мы передаём `Union[PlaneItem, CarItem]` в качестве значения аргумента `response_model`.
 
@@ -205,48 +184,28 @@ UserInDB(
 some_variable: PlaneItem | CarItem
 ```
 
-Но если мы помещаем его в `response_model=PlaneItem | CarItem` мы получим ошибку, потому что Python попытается произвести **некорректную операцию** между `PlaneItem` и `CarItem` вместо того, чтобы интерпретировать это как аннотацию типа.
+Но если мы поместим это в присваивание `response_model=PlaneItem | CarItem`, мы получим ошибку, потому что Python попытается произвести **некорректную операцию** между `PlaneItem` и `CarItem` вместо того, чтобы интерпретировать это как аннотацию типа.
 
-## Список моделей
+## Список моделей { #list-of-models }
 
-Таким же образом вы можете определять ответы как списки объектов.
+Таким же образом вы можете объявлять HTTP-ответы, возвращающие списки объектов.
 
-Для этого используйте `typing.List` из стандартной библиотеки Python (или просто `list` в Python 3.9 и выше):
+Для этого используйте стандартный `list` в Python:
 
-=== "Python 3.9+"
+{* ../../docs_src/extra_models/tutorial004.py hl[18] *}
 
-    ```Python hl_lines="18"
-    {!> ../../../docs_src/extra_models/tutorial004_py39.py!}
-    ```
+## Ответ с произвольным `dict` { #response-with-arbitrary-dict }
 
-=== "Python 3.8+"
-
-    ```Python hl_lines="1  20"
-    {!> ../../../docs_src/extra_models/tutorial004.py!}
-    ```
-
-## Ответ с произвольным `dict`
-
-Вы также можете определить ответ, используя произвольный одноуровневый `dict` и определяя только типы ключей и значений без использования Pydantic-моделей.
+Вы также можете объявить HTTP-ответ, используя обычный произвольный `dict`, объявив только тип ключей и значений, без использования Pydantic-модели.
 
 Это полезно, если вы заранее не знаете корректных названий полей/атрибутов (которые будут нужны при использовании Pydantic-модели).
 
-В этом случае вы можете использовать `typing.Dict` (или просто `dict` в Python 3.9 и выше):
+В этом случае вы можете использовать `dict`:
 
-=== "Python 3.9+"
+{* ../../docs_src/extra_models/tutorial005.py hl[6] *}
 
-    ```Python hl_lines="6"
-    {!> ../../../docs_src/extra_models/tutorial005_py39.py!}
-    ```
+## Резюме { #recap }
 
-=== "Python 3.8+"
+Используйте несколько Pydantic-моделей и свободно применяйте наследование для каждого случая.
 
-    ```Python hl_lines="1  8"
-    {!> ../../../docs_src/extra_models/tutorial005.py!}
-    ```
-
-## Резюме
-
-Используйте несколько Pydantic-моделей и свободно применяйте наследование для каждой из них.
-
-Вам не обязательно иметь единственную модель данных для каждой сущности, если эта сущность должна иметь возможность быть в разных "состояниях". Как в случае с "сущностью" пользователя, у которого есть состояния с полями `password`, `password_hash` и без пароля.
+Вам не обязательно иметь единственную модель данных для каждой сущности, если эта сущность должна иметь возможность быть в разных "состояниях". **Пользователь** — пример такой "сущности", с состояниями, которые включают `password`, `password_hash` или отсутствие пароля.

@@ -1,100 +1,36 @@
-# Header 参数
+# Header 参数 { #header-parameters }
 
 定义 `Header` 参数的方式与定义 `Query`、`Path`、`Cookie` 参数相同。
 
-## 导入 `Header`
+## 导入 `Header` { #import-header }
 
 首先，导入 `Header`：
 
-=== "Python 3.10+"
+{* ../../docs_src/header_params/tutorial001.py hl[3] *}
 
-    ```Python hl_lines="3"
-    {!> ../../../docs_src/header_params/tutorial001_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="3"
-    {!> ../../../docs_src/header_params/tutorial001_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="3"
-    {!> ../../../docs_src/header_params/tutorial001_an.py!}
-    ```
-
-=== "Python 3.10+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="1"
-    {!> ../../../docs_src/header_params/tutorial001_py310.py!}
-    ```
-
-=== "Python 3.8+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="3"
-    {!> ../../../docs_src/header_params/tutorial001.py!}
-    ```
-
-## 声明 `Header` 参数
+## 声明 `Header` 参数 { #declare-header-parameters }
 
 然后，使用和 `Path`、`Query`、`Cookie` 一样的结构定义 header 参数。
 
 第一个值是默认值，还可以传递所有验证参数或注释参数：
 
-=== "Python 3.10+"
+{* ../../docs_src/header_params/tutorial001.py hl[9] *}
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial001_an_py310.py!}
-    ```
+/// note | 技术细节
 
-=== "Python 3.9+"
+`Header` 是 `Path`、`Query`、`Cookie` 的**兄弟类**，都继承自共用的 `Param` 类。
 
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial001_an_py39.py!}
-    ```
+注意，从 `fastapi` 导入的 `Query`、`Path`、`Header` 等对象，实际上是返回特殊类的函数。
 
-=== "Python 3.8+"
+///
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/header_params/tutorial001_an.py!}
-    ```
+/// note
 
-=== "Python 3.10+ non-Annotated"
+必须使用 `Header` 声明 header 参数，否则该参数会被解释为查询参数。
 
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
+///
 
-    ```Python hl_lines="7"
-    {!> ../../../docs_src/header_params/tutorial001_py310.py!}
-    ```
-
-=== "Python 3.8+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial001.py!}
-    ```
-
-!!! note "技术细节"
-
-    `Header` 是 `Path`、`Query`、`Cookie` 的**兄弟类**，都继承自共用的 `Param` 类。
-
-    注意，从 `fastapi` 导入的 `Query`、`Path`、`Header` 等对象，实际上是返回特殊类的函数。
-
-!!! info "说明"
-
-    必须使用 `Header` 声明 header 参数，否则该参数会被解释为查询参数。
-
-## 自动转换
+## 自动转换 { #automatic-conversion }
 
 `Header` 比 `Path`、`Query` 和 `Cookie` 提供了更多功能。
 
@@ -110,48 +46,15 @@
 
 如需禁用下划线自动转换为连字符，可以把 `Header` 的 `convert_underscores` 参数设置为 `False`：
 
-=== "Python 3.10+"
+{* ../../docs_src/header_params/tutorial002.py hl[10] *}
 
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/header_params/tutorial002_an_py310.py!}
-    ```
+/// warning
 
-=== "Python 3.9+"
+注意，使用 `convert_underscores = False` 要慎重，有些 HTTP 代理和服务器不支持使用带有下划线的请求头。
 
-    ```Python hl_lines="11"
-    {!> ../../../docs_src/header_params/tutorial002_an_py39.py!}
-    ```
+///
 
-=== "Python 3.8+"
-
-    ```Python hl_lines="12"
-    {!> ../../../docs_src/header_params/tutorial002_an.py!}
-    ```
-
-=== "Python 3.10+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="8"
-    {!> ../../../docs_src/header_params/tutorial002_py310.py!}
-    ```
-
-=== "Python 3.8+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/header_params/tutorial002.py!}
-    ```
-
-!!! warning "警告"
-
-    注意，使用 `convert_underscores = False` 要慎重，有些 HTTP 代理和服务器不支持使用带有下划线的请求头。
-
-
-## 重复的请求头
+## 重复的请求头 { #duplicate-headers }
 
 有时，可能需要接收重复的请求头。即同一个请求头有多个值。
 
@@ -161,50 +64,7 @@
 
 例如，声明 `X-Token` 多次出现的请求头，可以写成这样：
 
-=== "Python 3.10+"
-
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial003_an_py310.py!}
-    ```
-
-=== "Python 3.9+"
-
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial003_an_py39.py!}
-    ```
-
-=== "Python 3.8+"
-
-    ```Python hl_lines="10"
-    {!> ../../../docs_src/header_params/tutorial003_an.py!}
-    ```
-
-=== "Python 3.10+ non-Annotated"
-
-    !!! tip
-        Prefer to use the `Annotated` version if possible.
-
-    ```Python hl_lines="7"
-    {!> ../../../docs_src/header_params/tutorial003_py310.py!}
-    ```
-
-=== "Python 3.9+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial003_py39.py!}
-    ```
-
-=== "Python 3.8+ non-Annotated"
-
-    !!! tip
-        尽可能选择使用 `Annotated` 的版本。
-
-    ```Python hl_lines="9"
-    {!> ../../../docs_src/header_params/tutorial003.py!}
-    ```
+{* ../../docs_src/header_params/tutorial003.py hl[9] *}
 
 与*路径操作*通信时，以下面的方式发送两个 HTTP 请求头：
 
@@ -224,7 +84,7 @@ X-Token: bar
 }
 ```
 
-## 小结
+## 小结 { #recap }
 
 使用 `Header` 声明请求头的方式与 `Query`、`Path` 、`Cookie` 相同。
 
